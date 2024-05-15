@@ -1,0 +1,49 @@
+name: 'JSON string/file validator'
+description: 'Checks if supplied input string/file is valid json'
+branding:
+  icon: 'check-square'
+  color: 'orange'
+inputs:
+  json-file-path:
+    description: 'Path to JSON file'
+    required: false
+    default: ''
+
+  json-string:
+    description: 'String to cast as JSON'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if input can be parsed successfully using jq
+      shell: bash
+      id: json-check
+      env:
+        JSON_FILE_PATH: ${{ inputs.json-file-path }}
+        JSON_STRING: ${{ inputs.json-string }}
+      run: |
+        if [[ -n "${JSON_FILE_PATH}" && -n "${JSON_STRING}" ]]; then
+            echo "Either json-file-path OR json-string should be provided, not both."
+            exit 1
+        fi
+
+        if [[ -n "${JSON_STRING}" ]]; then
+            parsed_result_msg=$(echo -e '${{ inputs.json-string }}' | jq -e .)
+            parsed_rc=$?
+            JSON_TARGET="string: \n${JSON_STRING}"
+        fi
+
+        if [[ -n "${JSON_FILE_PATH}" ]]; then
+            parsed_result_msg=$(jq -e . <<<"$(cat "${JSON_FILE_PATH}")")
+            parsed_rc=$?
+            JSON_TARGET="file: \n${JSON_FILE_PATH}"
+        fi
+
+        if [[ ${parsed_rc} -eq 0 ]]; then
+            echo -e "Successfully parsed JSON ${JSON_TARGET}"
+        else
+            echo -e "Failed parsing JSON ${JSON_TARGET}"
+            echo "${parsed_result_msg}"
+        fi
