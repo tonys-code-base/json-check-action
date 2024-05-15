@@ -17,7 +17,7 @@ jobs:
   ...
     steps:
       - name: Check if string is valid json
-        uses: tonys-code-base/json-check-action@v0.1.0-alpha
+        uses: tonys-code-base/json-check-action@v1.0.0
         id: json-str-chk
         with:
           json-string: >-
@@ -44,7 +44,7 @@ jobs:
   ...
     steps:
       - name: Check input file contains valid json
-        uses: tonys-code-base/json-check-action@v0.1.0-alpha
+        uses: tonys-code-base/json-check-action@v1.0.0
         id: json-file-chk
         with:
           json-file-path: ${{ github.workspace }}/test-file.json
